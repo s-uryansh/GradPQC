@@ -8,12 +8,14 @@ import (
 	"gradpqc/nist"
 	"gradpqc/scanner"
 	"gradpqc/scoring"
+	"gradpqc/webhook"
 	"net"
 	"os"
 	"strings"
 )
 
 func main() {
+	webhookConf := webhook.DefaultConfig
 	targets, err := loadTargets("targets.txt")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error loading targets: %v\n", err)
@@ -48,8 +50,23 @@ func main() {
 		scoring.ComputeDES(asset, "")
 		leadDays := scoring.ComputeMCS(asset)
 		scoring.ComputeQMRS(asset, scoring.DefaultWeights)
+		scoring.ComputeCryptoAgility(asset)
 		nist.ComputeRunway(asset, leadDays)
 		compliance.ComputeCompliance(asset)
+
+		if webhook.ShouldTrigger(asset, webhookConf) {
+			if webhookConf.Endpoint != "" {
+				if err := webhook.Fire(asset, webhookConf); err != nil {
+					fmt.Printf("[WARN] webhook failed for %s: %v\n", asset.Domain, err)
+				} else {
+					fmt.Printf("[WEBHOOK] fired for %s — %s\n", asset.Domain, asset.RunwayStatus)
+				}
+			} else {
+				fmt.Printf("[WEBHOOK] would trigger for %s — %s (endpoint not configured)\n",
+					asset.Domain, asset.RunwayStatus,
+				)
+			}
+		}
 
 		fmt.Printf("  TLS: %s | QMRS: %.1f | Runway: %s | RBI: %s\n",
 			asset.TLSVersion,
@@ -68,13 +85,13 @@ func main() {
 
 	report := cbom.NewCBOM(assets)
 
-	if err := cbom.ExportJSON(report, "cbom_report.json"); err != nil {
+	if err := cbom.ExportJSON(report, "output/cbom_report.json"); err != nil {
 		fmt.Printf("[ERROR] JSON export failed: %v\n", err)
 	} else {
 		fmt.Println("exported: cbom_report.json")
 	}
 
-	if err := cbom.ExportExcel(report, "cbom_report.xlsx"); err != nil {
+	if err := cbom.ExportExcel(report, "output/cbom_report.xlsx"); err != nil {
 		fmt.Printf("[ERROR] Excel export failed: %v\n", err)
 	} else {
 		fmt.Println("exported: cbom_report.xlsx")
@@ -102,8 +119,8 @@ func main() {
 	}
 
 	if labelCount == 0 {
-		fmt.Println("no PQC-Ready assets detected — no labels issued")
-		fmt.Println("note: most production systems do not yet run PQC algorithms")
+		fmt.Println("no PQC-Ready assets detected: no labels issued")
+		// fmt.Println("note: most production systems do not yet run PQC algorithms")
 	}
 }
 
