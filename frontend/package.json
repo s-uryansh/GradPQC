@@ -1,0 +1,26 @@
+{
+  "name": "frontend",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm -r dev",
+    "build": "pnpm -r build",
+    "check-types": "pnpm -r --if-present check-types",
+    "dev:native": "pnpm --filter native dev",
+    "dev:web": "pnpm --filter web dev"
+  },
+  "dependencies": {
+    "@frontend/env": "workspace:*",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@frontend/config": "workspace:*",
+    "typescript": "catalog:"
+  },
+  "packageManager": "pnpm@10.32.1"
+}

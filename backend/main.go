@@ -12,9 +12,75 @@ import (
 	"net"
 	"os"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
+type AssetTag struct {
+	Domain      string `yaml:"domain"`
+	Sensitivity string `yaml:"sensitivity"`
+	Type        string `yaml:"type"`
+}
+
+type AssetsConfig struct {
+	Assets []AssetTag `yaml:"assets"`
+}
+
+type WeightsConfig struct {
+	QES float64 `yaml:"qes"`
+	DES float64 `yaml:"des"`
+	MCS float64 `yaml:"mcs"`
+}
+
+type PolicyConfig struct {
+	Weights WeightsConfig `yaml:"weights"`
+}
+
+func loadAssetsConfig(path string) (map[string]AssetTag, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	var conf AssetsConfig
+	if err := yaml.Unmarshal(data, &conf); err != nil {
+		return nil, err
+	}
+	m := make(map[string]AssetTag)
+	for _, a := range conf.Assets {
+		m[a.Domain] = a
+	}
+	return m, nil
+}
+
+func loadPolicyConfig(path string) (*scoring.Weights, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	var conf PolicyConfig
+	if err := yaml.Unmarshal(data, &conf); err != nil {
+		return nil, err
+	}
+	return &scoring.Weights{
+		QES: conf.Weights.QES,
+		DES: conf.Weights.DES,
+		MCS: conf.Weights.MCS,
+	}, nil
+}
+
 func main() {
+	assetTags, err := loadAssetsConfig("config/assets.yaml")
+	if err != nil {
+		fmt.Printf("[WARN] could not load assets.yaml: %v — using URL inference\n", err)
+		assetTags = make(map[string]AssetTag)
+	}
+
+	weights, err := loadPolicyConfig("config/policy.yaml")
+	if err != nil {
+		fmt.Printf("[WARN] could not load policy.yaml: %v — using defaults\n", err)
+		weights = &scoring.DefaultWeights
+	}
+
 	webhookConf := webhook.DefaultConfig
 	targets, err := loadTargets("targets.txt")
 	if err != nil {
@@ -41,15 +107,17 @@ func main() {
 			scanner.TestKeyReuse(asset)
 		} else {
 			asset.PFSActual = false
-			asset.PFSNote = "PFS not advertised - key reuse test skipped"
+			asset.PFSNote = "PFS not advertised: key reuse test skipped"
 		}
 
 		scanner.DetectTerminator(asset)
 
+		tag := assetTags[target]
+
 		scoring.ComputeQES(asset)
-		scoring.ComputeDES(asset, "")
+		scoring.ComputeDES(asset, tag.Sensitivity)
 		leadDays := scoring.ComputeMCS(asset)
-		scoring.ComputeQMRS(asset, scoring.DefaultWeights)
+		scoring.ComputeQMRS(asset, *weights)
 		scoring.ComputeCryptoAgility(asset)
 		nist.ComputeRunway(asset, leadDays)
 		compliance.ComputeCompliance(asset)

@@ -1,0 +1,17 @@
+weights:
+  qes: 0.50
+  des: 0.30
+  mcs: 0.20
+rationale: "NIST SP 800-131A prioritisation — cryptographic exposure is primary risk driver"
+
+webhook:
+  endpoint: ""
+  timeout_seconds: 10
+  trigger_on_red: true
+  trigger_on_amber: false
+  trigger_on_rbi_violation: true
+
+scan:
+  connection_timeout_seconds: 10
+  key_reuse_connections: 3
+  key_reuse_delay_ms: 100
