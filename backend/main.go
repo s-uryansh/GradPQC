@@ -153,13 +153,13 @@ func main() {
 
 	report := cbom.NewCBOM(assets)
 
-	if err := cbom.ExportJSON(report, "output/cbom_report.json"); err != nil {
+	if err := cbom.ExportJSON(report, "../frontend/apps/web/public/cbom_report.json"); err != nil {
 		fmt.Printf("[ERROR] JSON export failed: %v\n", err)
 	} else {
 		fmt.Println("exported: cbom_report.json")
 	}
 
-	if err := cbom.ExportExcel(report, "output/cbom_report.xlsx"); err != nil {
+	if err := cbom.ExportExcel(report, "../frontend/apps/web/public/cbom_report.xlsx"); err != nil {
 		fmt.Printf("[ERROR] Excel export failed: %v\n", err)
 	} else {
 		fmt.Println("exported: cbom_report.xlsx")

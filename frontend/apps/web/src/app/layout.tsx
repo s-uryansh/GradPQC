@@ -4,19 +4,36 @@ import Providers from "@/components/providers";
 import Sidebar from "@/components/sidebar";
 import DashboardHeader from "@/components/dashboard-header";
 import { cookies } from "next/headers";
-import { verifyToken } from "@/lib/auth";
 
 export const metadata: Metadata = {
-  title: "GradPQC — Quantum Migration Intelligence",
+  title: "GradPQC - Quantum Migration Intelligence",
   description: "Cryptographic inventory and quantum migration intelligence platform",
 };
+
+function decodeJwt(token: string) {
+  try {
+    return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+  } catch (e) {
+    return null;
+  }
+}
 
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
   let email: string | undefined;
+
+  if (token) {
+    const payload = decodeJwt(token);
+    if (payload && payload.email) {
+      email = payload.email;
+    }
+  }
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="bg-gray-50 text-gray-900 antialiased">
