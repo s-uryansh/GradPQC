@@ -1,39 +1,39 @@
 import type { Metadata } from "next";
-
-import { Geist, Geist_Mono } from "next/font/google";
-
 import "../index.css";
-import Header from "@/components/header";
 import Providers from "@/components/providers";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import Sidebar from "@/components/sidebar";
+import DashboardHeader from "@/components/dashboard-header";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/auth";
 
 export const metadata: Metadata = {
-  title: "frontend",
-  description: "frontend",
+  title: "GradPQC — Quantum Migration Intelligence",
+  description: "Cryptographic inventory and quantum migration intelligence platform",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  let email: string | undefined;
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className="bg-gray-50 text-gray-900 antialiased">
         <Providers>
-          <div className="grid grid-rows-[auto_1fr] h-svh">
-            <Header />
-            {children}
-          </div>
+          {email ? (
+            <>
+              <Sidebar />
+              <DashboardHeader email={email} />
+              <main className="ml-64 mt-14 min-h-[calc(100vh-3.5rem)] p-6">
+                {children}
+              </main>
+            </>
+          ) : (
+            <main className="min-h-screen">
+              {children}
+            </main>
+          )}
         </Providers>
       </body>
     </html>
