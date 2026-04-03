@@ -73,6 +73,7 @@ JWT_SECRET=your_secure_random_jwt_secret_key_here
 ```
 
 # Install dependencies and run
+```
 pnpm install
 pnpm run dev
 ```
@@ -81,3 +82,17 @@ pnpm run dev
 1. Open your web browser and navigate to `http://localhost:3000` (or `http://localhost:3001` depending on terminal output).
 2. Click **Create account** to register a new user.
 3. Sign in to view the live dashboard, CBOM inventory, and PQC Posture analytics.
+
+# Verification
+
+* Verify TLS Version
+
+  - ``` openssl s_client -connect pnb.bank.in:443 -tls1_2 2>/dev/null | grep -E "Protocol|Cipher" ```
+
+* Verify Certificate 
+
+  - ``` echo | openssl s_client -connect pnb.bank.in:443 2>/dev/null | openssl x509 -noout -dates -subject -issuer ```
+
+* Verify Ephemeral Key Reuse
+
+  - ``` openssl s_client -connect pnb.bank.in:443 -msg 2>&1 | grep -A2 "ServerKeyExchange" ```
