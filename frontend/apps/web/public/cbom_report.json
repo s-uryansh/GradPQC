@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-02T13:57:43Z",
+  "generated_at": "2026-04-04T18:11:02Z",
   "total_assets": 5,
   "assets": [
     {
@@ -11,7 +11,7 @@
       "cert_signature_algorithm": "SHA256-RSA",
       "key_size": 2048,
       "cert_expiry": "2026-08-10",
-      "cert_days_remaining": 130,
+      "cert_days_remaining": 128,
       "cert_issue_date": "2025-12-23",
       "pfs_advertised": true,
       "pfs_actual": false,
@@ -30,17 +30,17 @@
       "mcs_confidence": "LOW",
       "qmrs": 100,
       "crypto_agility_rating": "Low",
-      "hndl_exposure_days": 100,
+      "hndl_exposure_days": 102,
       "quantum_status": "Not-PQC-Ready",
       "recommended_algorithm": "ML-KEM-768 (FIPS 203)",
       "rbi_compliance": "Compliant",
       "certin_status": "Compliant",
       "deprecation_date": "2030-01-01",
-      "runway_days": 919,
+      "runway_days": 917,
       "runway_status": "Green",
       "nist_ref": "NIST IR 8547 ipd (Nov 2024), Table 4",
       "disallowed_date": "2035-01-01",
-      "action": "Plan migration of ECDHE-RSA to ML-KEM-768 (FIPS 203) before 2030 deprecation. Runway: 919 days. Ref: NIST IR 8547 ipd (Nov 2024), Table 4"
+      "action": "Plan migration of ECDHE-RSA to ML-KEM-768 (FIPS 203) before 2030 deprecation. Runway: 917 days. Ref: NIST IR 8547 ipd (Nov 2024), Table 4"
     },
     {
       "domain": "www.pnb.bank.in",
@@ -51,7 +51,7 @@
       "cert_signature_algorithm": "SHA256-RSA",
       "key_size": 2048,
       "cert_expiry": "2026-08-10",
-      "cert_days_remaining": 130,
+      "cert_days_remaining": 128,
       "cert_issue_date": "2025-12-23",
       "pfs_advertised": true,
       "pfs_actual": false,
@@ -70,17 +70,17 @@
       "mcs_confidence": "LOW",
       "qmrs": 100,
       "crypto_agility_rating": "Low",
-      "hndl_exposure_days": 100,
+      "hndl_exposure_days": 102,
       "quantum_status": "Not-PQC-Ready",
       "recommended_algorithm": "ML-KEM-768 (FIPS 203)",
       "rbi_compliance": "Compliant",
       "certin_status": "Compliant",
       "deprecation_date": "2030-01-01",
-      "runway_days": 919,
+      "runway_days": 917,
       "runway_status": "Green",
       "nist_ref": "NIST IR 8547 ipd (Nov 2024), Table 4",
       "disallowed_date": "2035-01-01",
-      "action": "Plan migration of ECDHE-RSA to ML-KEM-768 (FIPS 203) before 2030 deprecation. Runway: 919 days. Ref: NIST IR 8547 ipd (Nov 2024), Table 4"
+      "action": "Plan migration of ECDHE-RSA to ML-KEM-768 (FIPS 203) before 2030 deprecation. Runway: 917 days. Ref: NIST IR 8547 ipd (Nov 2024), Table 4"
     },
     {
       "domain": "pnbnet.pnb.bank.in",
@@ -91,7 +91,7 @@
       "cert_signature_algorithm": "SHA256-RSA",
       "key_size": 2048,
       "cert_expiry": "2026-07-21",
-      "cert_days_remaining": 110,
+      "cert_days_remaining": 108,
       "cert_issue_date": "2025-07-22",
       "pfs_advertised": true,
       "pfs_actual": false,
@@ -110,17 +110,17 @@
       "mcs_confidence": "HIGH",
       "qmrs": 80,
       "crypto_agility_rating": "Medium",
-      "hndl_exposure_days": 254,
+      "hndl_exposure_days": 256,
       "quantum_status": "Not-PQC-Ready",
       "recommended_algorithm": "ML-KEM-768 (FIPS 203) or X25519+ML-KEM hybrid",
       "rbi_compliance": "Compliant",
       "certin_status": "Compliant",
       "deprecation_date": "2035-01-01",
-      "runway_days": 3165,
+      "runway_days": 3163,
       "runway_status": "Green",
       "nist_ref": "NIST IR 8547 ipd (Nov 2024), Table 4",
       "disallowed_date": "2035-01-01",
-      "action": "Plan migration of X25519 (TLS 1.3) to ML-KEM-768 (FIPS 203) or X25519+ML-KEM hybrid before 2035 disallowed cutoff. Runway: 3165 days. Ref: NIST IR 8547 ipd (Nov 2024), Table 4"
+      "action": "Plan migration of X25519 (TLS 1.3) to ML-KEM-768 (FIPS 203) or X25519+ML-KEM hybrid before 2035 disallowed cutoff. Runway: 3163 days. Ref: NIST IR 8547 ipd (Nov 2024), Table 4"
     },
     {
       "domain": "mbs.manipurrural.bank.in",
@@ -131,7 +131,7 @@
       "cert_signature_algorithm": "SHA256-RSA",
       "key_size": 2048,
       "cert_expiry": "2026-09-05",
-      "cert_days_remaining": 156,
+      "cert_days_remaining": 154,
       "cert_issue_date": "2025-09-06",
       "pfs_advertised": true,
       "pfs_actual": false,
@@ -150,17 +150,17 @@
       "mcs_confidence": "HIGH",
       "qmrs": 50,
       "crypto_agility_rating": "Medium",
-      "hndl_exposure_days": 208,
+      "hndl_exposure_days": 210,
       "quantum_status": "Not-PQC-Ready",
       "recommended_algorithm": "ML-KEM-768 (FIPS 203) or X25519+ML-KEM hybrid",
       "rbi_compliance": "Compliant",
       "certin_status": "Compliant",
       "deprecation_date": "2035-01-01",
-      "runway_days": 3165,
+      "runway_days": 3163,
       "runway_status": "Green",
       "nist_ref": "NIST IR 8547 ipd (Nov 2024), Table 4",
       "disallowed_date": "2035-01-01",
-      "action": "Plan migration of X25519 (TLS 1.3) to ML-KEM-768 (FIPS 203) or X25519+ML-KEM hybrid before 2035 disallowed cutoff. Runway: 3165 days. Ref: NIST IR 8547 ipd (Nov 2024), Table 4"
+      "action": "Plan migration of X25519 (TLS 1.3) to ML-KEM-768 (FIPS 203) or X25519+ML-KEM hybrid before 2035 disallowed cutoff. Runway: 3163 days. Ref: NIST IR 8547 ipd (Nov 2024), Table 4"
     },
     {
       "domain": "cbdcr.pnbuat.bank.in",
@@ -171,7 +171,7 @@
       "cert_signature_algorithm": "SHA256-RSA",
       "key_size": 2048,
       "cert_expiry": "2026-08-27",
-      "cert_days_remaining": 147,
+      "cert_days_remaining": 145,
       "cert_issue_date": "2025-08-28",
       "pfs_advertised": true,
       "pfs_actual": false,
@@ -190,17 +190,17 @@
       "mcs_confidence": "HIGH",
       "qmrs": 50,
       "crypto_agility_rating": "Medium",
-      "hndl_exposure_days": 217,
+      "hndl_exposure_days": 219,
       "quantum_status": "Not-PQC-Ready",
       "recommended_algorithm": "ML-KEM-768 (FIPS 203) or X25519+ML-KEM hybrid",
       "rbi_compliance": "Compliant",
       "certin_status": "Compliant",
       "deprecation_date": "2035-01-01",
-      "runway_days": 3165,
+      "runway_days": 3163,
       "runway_status": "Green",
       "nist_ref": "NIST IR 8547 ipd (Nov 2024), Table 4",
       "disallowed_date": "2035-01-01",
-      "action": "Plan migration of X25519 (TLS 1.3) to ML-KEM-768 (FIPS 203) or X25519+ML-KEM hybrid before 2035 disallowed cutoff. Runway: 3165 days. Ref: NIST IR 8547 ipd (Nov 2024), Table 4"
+      "action": "Plan migration of X25519 (TLS 1.3) to ML-KEM-768 (FIPS 203) or X25519+ML-KEM hybrid before 2035 disallowed cutoff. Runway: 3163 days. Ref: NIST IR 8547 ipd (Nov 2024), Table 4"
     }
   ]
 }
