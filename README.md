@@ -1,4 +1,4 @@
-# GradPQC — Quantum Migration Intelligence Platform
+# GradPQC: Quantum Migration Intelligence Platform
 
 GradPQC is an automated cryptographic governance engine developed for the PNB PSB Hackathon 2026 (Theme: Quantum-Proof Systems). 
 
@@ -12,8 +12,8 @@ The platform consists of two main components:
 
 ```text
 GradPQC/
-├── backend/          # Go-based TLS scanner, scoring engine, and JSON export
-└── frontend/         # Next.js web dashboard, authentication, and UI
+|-- backend/          # Go-based TLS scanner, scoring engine, and JSON export
+|-- frontend/         # Next.js web dashboard, authentication, and UI
 ```
 
 ---

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Users, Calendar, Search } from "lucide-react";
+import { toast } from "sonner";
 
 type ReportType = "executive" | "scheduled" | "ondemand";
 
@@ -19,6 +20,24 @@ type ScheduledForm = {
   time: string;
   email: string;
 };
+
+async function onSchedule(data: ScheduledForm) {
+  try {
+    const res = await fetch("http://localhost:8080/api/reports/schedule", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    if (res.ok) {
+      toast.success("Compliance report scheduled successfully!");
+    } else {
+      toast.error("Failed to schedule report.");
+    }
+  } catch (err) {
+    toast.error("Connection error to backend.");
+  }
+}
 
 export default function ReportingPage() {
   const [activeType, setActiveType] = useState<ReportType>("executive");
@@ -51,7 +70,6 @@ export default function ReportingPage() {
         </p>
       </div>
 
-      {/* Report type selector */}
       <div className="grid grid-cols-3 gap-6">
         {reportTypes.map(({ type, label, icon: Icon, desc }) => (
           <Card
@@ -76,7 +94,6 @@ export default function ReportingPage() {
         ))}
       </div>
 
-      {/* Scheduled form */}
       {activeType === "scheduled" && (
         <Card>
           <CardContent className="p-6">
@@ -177,7 +194,6 @@ export default function ReportingPage() {
         </Card>
       )}
 
-      {/* On demand form */}
       {activeType === "ondemand" && (
         <Card>
           <CardContent className="p-6">
@@ -251,8 +267,11 @@ export default function ReportingPage() {
                 </div>
               ))}
             </div>
-            <Button className="mt-6 bg-amber-500 hover:bg-amber-600 text-white">
-              Download Executive Report
+            <Button 
+              onClick={() => window.print()} 
+              className="mt-6 bg-amber-500 hover:bg-amber-600 text-white"
+            >
+              Download Executive Report (PDF)
             </Button>
           </CardContent>
         </Card>

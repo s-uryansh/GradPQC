@@ -3,13 +3,17 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"gradpqc/api"
 	"gradpqc/cbom"
 	"gradpqc/compliance"
+	"gradpqc/db"
 	"gradpqc/nist"
 	"gradpqc/scanner"
 	"gradpqc/scoring"
 	"gradpqc/webhook"
+	"log"
 	"net"
+	"net/http"
 	"os"
 	"strings"
 
@@ -69,6 +73,22 @@ func loadPolicyConfig(path string) (*scoring.Weights, error) {
 }
 
 func main() {
+	db.InitDB()
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api/scan", api.HandleScan)
+	mux.HandleFunc("/api/results", api.HandleResults)
+	mux.HandleFunc("/api/discover", api.HandleDiscover)
+	mux.HandleFunc("/api/reports/schedule", api.HandleScheduleReport)
+
+	port := "8080"
+	fmt.Printf("GradPQC Backend API is running on http://localhost:%s\n", port)
+
+	err := http.ListenAndServe(":"+port, mux)
+	if err != nil {
+		log.Fatalf("Server failed to start: %v", err)
+	}
+
 	assetTags, err := loadAssetsConfig("config/assets.yaml")
 	if err != nil {
 		fmt.Printf("[WARN] could not load assets.yaml: %v — using URL inference\n", err)

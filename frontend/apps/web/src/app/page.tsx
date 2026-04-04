@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Loader from "@/components/loader";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import ScanTrigger from "@/components/scan-trigger";
 
 function getMockData(domain: string) {
   const hash = domain.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -30,12 +31,15 @@ const RISK_COLORS = ["#EF4444", "#F97316", "#F59E0B", "#10B981"];
 const IP_COLORS = ["#3B82F6", "#8B5CF6"];
 
 export default function HomePage() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [report, setReport] = useState<CBOMReport | null>(null);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     loadCBOM().then(setReport).catch(e => setError(e.message));
-  }, []);
+    const handler = setTimeout(() => setDebouncedSearch(searchTerm), 2000);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
 
   if (error) return (
     <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-600 m-6">
@@ -43,7 +47,9 @@ export default function HomePage() {
     </div>
   );
   if (!report) return <Loader />;
-
+  const filteredAssets = report.assets.filter(asset => 
+    asset.domain.toLowerCase().includes(debouncedSearch.toLowerCase())
+  );
   const s = summarise(report);
   
   const riskData = [
@@ -76,6 +82,7 @@ export default function HomePage() {
 
   return (
     <div className="space-y-6">
+    <ScanTrigger userRole="admin" />
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
         {summaryCards.map(({ label, value, icon: Icon, color, bg }) => (
           <Card key={label} className="shadow-sm bg-white border-gray-200">
@@ -186,16 +193,10 @@ export default function HomePage() {
         <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between bg-white rounded-t-xl">
           <h2 className="text-base font-bold text-gray-800">Asset Inventory</h2>
           <div className="flex items-center gap-3">
-            <div className="relative">
+            {/* <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input placeholder="Search..." className="pl-8 h-8 w-[200px] bg-gray-50 border-gray-200 text-xs" />
-            </div>
-            <Button variant="outline" size="sm" className="h-8 text-xs bg-white text-gray-700 border-gray-200">
-              <Plus className="h-3 w-3 mr-1" /> Add Asset
-            </Button>
-            <Button size="sm" className="h-8 text-xs bg-[#8B1A1A] hover:bg-[#6B1414] text-white">
-              <Play className="h-3 w-3 mr-1" /> Scan All
-            </Button>
+            </div> */}
           </div>
         </div>
         <CardContent className="p-0">
@@ -209,7 +210,7 @@ export default function HomePage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {report.assets.map((asset) => {
+                {filteredAssets.map((asset) => {
                   const mock = getMockData(asset.domain);
                   const isExpiring = asset.cert_days_remaining < 30;
                   const riskLevel = asset.qmrs >= 80 ? "Critical" : asset.qmrs >= 60 ? "High" : asset.qmrs >= 40 ? "Medium" : "Low";

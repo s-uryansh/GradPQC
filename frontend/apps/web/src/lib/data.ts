@@ -53,8 +53,12 @@ export type CBOMReport = z.infer<typeof CBOMReportSchema>;
 
 
 export async function loadCBOM(): Promise<CBOMReport> {
-  const res = await fetch("/cbom_report.json", { cache: "no-store" });
-  if (!res.ok) throw new Error("Failed to load cbom_report.json");
+  const res = await fetch("http://localhost:8080/api/results", {
+    cache: "no-store",
+    mode: "cors",
+  });
+
+  if (!res.ok) throw new Error("Failed to load live data from Go backend");
   const raw = await res.json();
   return CBOMReportSchema.parse(raw);
 }
