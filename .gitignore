@@ -5,3 +5,4 @@ backend_backup
 .air.toml
 backend/tmp/
 .env
+.air.toml
