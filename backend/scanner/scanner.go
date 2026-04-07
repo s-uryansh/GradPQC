@@ -72,6 +72,10 @@ func populateCertFields(asset *cbom.Asset, cert *x509.Certificate) {
 	asset.CertSignatureAlgorithm = cert.SignatureAlgorithm.String()
 	asset.KeySize = certKeySize(cert)
 
+	if len(cert.Issuer.Organization) > 0 {
+		asset.CertIssuerOrg = cert.Issuer.Organization[0]
+	}
+
 	asset.HNDLExposureDays = int(time.Since(cert.NotBefore).Hours() / 24)
 }
 

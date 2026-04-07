@@ -7,9 +7,11 @@ import (
 	"gradpqc/cbom"
 	"gradpqc/compliance"
 	"gradpqc/db"
+	"gradpqc/montecarlo"
 	"gradpqc/nist"
 	"gradpqc/scanner"
 	"gradpqc/scoring"
+	"gradpqc/shadowit"
 	"gradpqc/webhook"
 	"log"
 	"net"
@@ -79,6 +81,7 @@ func main() {
 	mux.HandleFunc("/api/scan", api.HandleScan)
 	mux.HandleFunc("/api/results", api.HandleResults)
 	mux.HandleFunc("/api/discover", api.HandleDiscover)
+	mux.HandleFunc("/api/benchmark", api.HandleBenchmark)
 	mux.HandleFunc("/api/reports/schedule", api.HandleScheduleReport)
 
 	port := "8080"
@@ -141,6 +144,7 @@ func main() {
 		scoring.ComputeCryptoAgility(asset)
 		nist.ComputeRunway(asset, leadDays)
 		compliance.ComputeCompliance(asset)
+		montecarlo.ComputeMonteCarlo(asset)
 
 		if webhook.ShouldTrigger(asset, webhookConf) {
 			if webhookConf.Endpoint != "" {
@@ -171,6 +175,7 @@ func main() {
 		return
 	}
 
+	shadowit.DetectShadowIT(assets)
 	report := cbom.NewCBOM(assets)
 
 	if err := cbom.ExportJSON(report, "../frontend/apps/web/public/cbom_report.json"); err != nil {
