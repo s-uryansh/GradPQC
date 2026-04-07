@@ -5,9 +5,11 @@ import (
 	"gradpqc/cbom"
 	"gradpqc/compliance"
 	"gradpqc/db"
+	"gradpqc/montecarlo"
 	"gradpqc/nist"
 	"gradpqc/scanner"
 	"gradpqc/scoring"
+	"gradpqc/shadowit"
 	"net/http"
 )
 
@@ -55,6 +57,7 @@ func HandleScan(w http.ResponseWriter, r *http.Request) {
 	scoring.ComputeCryptoAgility(asset)
 	nist.ComputeRunway(asset, leadDays)
 	compliance.ComputeCompliance(asset)
+	montecarlo.ComputeMonteCarlo(asset)
 
 	if err := db.SaveScanResult(asset); err != nil {
 		http.Error(w, "Failed to save to database", http.StatusInternalServerError)
@@ -79,6 +82,12 @@ func HandleResults(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to fetch results", http.StatusInternalServerError)
 		return
 	}
+
+	// Apply in-memory intelligence on top of stored scan data.
+	for i := range assets {
+		montecarlo.ComputeMonteCarlo(&assets[i])
+	}
+	shadowit.DetectShadowIT(assets)
 
 	report := cbom.NewCBOM(assets)
 

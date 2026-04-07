@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { loadCBOM, type CBOMReport, runwayBg } from "@/lib/data";
+import { loadCBOM, type CBOMReport } from "@/lib/data";
 import { pqcGrade, type PQCGrade } from "@/lib/cbom";
 import { Card, CardContent } from "@/components/ui/card";
 import Loader from "@/components/loader";
@@ -164,7 +164,7 @@ export default function PosturePage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50">
-                {["Asset Name", "IP", "PQC Support", "Grade", "Runway", "Action"].map(h => (
+                {["Asset Name", "IP", "PQC Support", "Grade", "Quantum Break Risk", "Action"].map(h => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-medium text-gray-500">
                     {h}
                   </th>
@@ -188,9 +188,41 @@ export default function PosturePage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${runwayBg(asset.runway_status)}`}>
-                      {asset.runway_days}d
-                    </span>
+                    {asset.quantum_break_p50 && asset.quantum_break_p50 > 0 ? (
+                      <div className="space-y-1 min-w-[140px]">
+                        <div className="flex justify-between text-[10px] text-gray-500">
+                          <span>by 2030</span>
+                          <span className="font-semibold text-red-600">
+                            {((asset.quantum_break_prob_2030 ?? 0) * 100).toFixed(0)}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-100 rounded-full h-1.5">
+                          <div
+                            className="bg-red-500 h-1.5 rounded-full"
+                            style={{ width: `${(asset.quantum_break_prob_2030 ?? 0) * 100}%` }}
+                          />
+                        </div>
+                        <div className="flex justify-between text-[10px] text-gray-500">
+                          <span>by 2035</span>
+                          <span className="font-semibold text-amber-600">
+                            {((asset.quantum_break_prob_2035 ?? 0) * 100).toFixed(0)}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-100 rounded-full h-1.5">
+                          <div
+                            className="bg-amber-400 h-1.5 rounded-full"
+                            style={{ width: `${(asset.quantum_break_prob_2035 ?? 0) * 100}%` }}
+                          />
+                        </div>
+                        <div className="text-[10px] text-gray-400">
+                          P50 break: <span className="font-medium text-gray-600">{asset.quantum_break_p50}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-700">
+                        PQC-Safe
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-xs text-gray-500 max-w-xs truncate">
                     {asset.action}

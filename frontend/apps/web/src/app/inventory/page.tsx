@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Loader from "@/components/loader";
-import { Search, ArrowUpDown, Filter } from "lucide-react";
+import { Search, ArrowUpDown, Filter, AlertTriangle } from "lucide-react";
 
 type SortConfig = { key: keyof Asset; direction: "asc" | "desc" } | null;
 
@@ -40,7 +40,9 @@ export default function InventoryPage() {
       docs = docs.filter(a => a.domain.toLowerCase().includes(activeSearch.toLowerCase()));
     }
 
-    if (statusFilter !== "All") {
+    if (statusFilter === "Shadow IT") {
+      docs = docs.filter(a => a.shadow_it);
+    } else if (statusFilter !== "All") {
       docs = docs.filter(a => a.runway_status === statusFilter);
     }
 
@@ -89,6 +91,7 @@ export default function InventoryPage() {
               <option value="Red">Red (Critical)</option>
               <option value="Amber">Amber (Warning)</option>
               <option value="Green">Green (Safe)</option>
+              <option value="Shadow IT">Shadow IT</option>
             </select>
           </div>
 
@@ -126,7 +129,8 @@ export default function InventoryPage() {
                     { label: "Cipher Suite", key: "cipher_suite" },
                     { label: "Key Size", key: "key_size" },
                     { label: "QMRS", key: "qmrs" },
-                    { label: "Runway", key: "runway_status" }
+                    { label: "Runway", key: "runway_status" },
+                    { label: "Shadow IT", key: "shadow_it" },
                   ].map((head) => (
                     <th 
                       key={head.key} 
@@ -156,11 +160,30 @@ export default function InventoryPage() {
                           {asset.runway_status}
                         </span>
                       </td>
+                      <td className="px-4 py-3">
+                        {asset.shadow_it ? (
+                          <div className="flex items-center gap-1">
+                            <AlertTriangle className="w-3.5 h-3.5 text-orange-500 flex-shrink-0" />
+                            <div>
+                              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-700">
+                                SHADOW IT
+                              </span>
+                              {asset.shadow_it_confidence > 0 && (
+                                <div className="text-[9px] text-gray-400 mt-0.5">
+                                  {Math.round((asset.shadow_it_confidence ?? 0) * 100)}% confidence
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-[10px] text-gray-400">—</span>
+                        )}
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={7} className="px-4 py-10 text-center text-gray-400 italic">
+                    <td colSpan={8} className="px-4 py-10 text-center text-gray-400 italic">
                       No assets match your search or filter criteria.
                     </td>
                   </tr>

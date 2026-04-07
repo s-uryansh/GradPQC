@@ -60,6 +60,19 @@ type Asset struct {
 	DisallowedDate string `json:"disallowed_date"`
 
 	Action string `json:"action"`
+
+	// Monte Carlo Quantum Break Simulation
+	QuantumBreakP25      int     `json:"quantum_break_p25"`       // optimistic break year (25th percentile)
+	QuantumBreakP50      int     `json:"quantum_break_p50"`       // median break year
+	QuantumBreakP75      int     `json:"quantum_break_p75"`       // pessimistic break year (75th percentile)
+	QuantumBreakProb2030 float64 `json:"quantum_break_prob_2030"` // probability broken by 2030
+	QuantumBreakProb2035 float64 `json:"quantum_break_prob_2035"` // probability broken by 2035
+
+	// Shadow IT Detection
+	CertIssuerOrg      string  `json:"cert_issuer_org"`
+	ShadowIT           bool    `json:"shadow_it"`
+	ShadowITConfidence float64 `json:"shadow_it_confidence"`
+	ShadowITReason     string  `json:"shadow_it_reason"`
 }
 
 type CBOM struct {

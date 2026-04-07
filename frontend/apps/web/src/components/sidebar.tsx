@@ -10,6 +10,8 @@ import {
   Shield,
   Star,
   BarChart3,
+  Trophy,
+  Calculator,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +22,8 @@ const navItems = [
   { href: "/cbom",          label: "CBOM",             icon: FileText },
   { href: "/posture",       label: "Posture of PQC",   icon: Shield },
   { href: "/cyber-rating",  label: "Cyber Rating",     icon: Star },
+  { href: "/competitor",    label: "Benchmarking",     icon: Trophy },
+  { href: "/roi",           label: "Migration ROI",    icon: Calculator },
   { href: "/reporting",     label: "Reporting",        icon: BarChart3 },
 ];
 

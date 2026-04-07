@@ -40,6 +40,19 @@ export const AssetSchema = z.object({
   nist_ref: z.string(),
   disallowed_date: z.string(),
   action: z.string(),
+
+  // Monte Carlo Quantum Break Simulation
+  quantum_break_p25: z.number().optional().default(0),
+  quantum_break_p50: z.number().optional().default(0),
+  quantum_break_p75: z.number().optional().default(0),
+  quantum_break_prob_2030: z.number().optional().default(0),
+  quantum_break_prob_2035: z.number().optional().default(0),
+
+  // Shadow IT Detection
+  cert_issuer_org: z.string().optional().default(""),
+  shadow_it: z.boolean().optional().default(false),
+  shadow_it_confidence: z.number().optional().default(0),
+  shadow_it_reason: z.string().optional().default(""),
 });
 
 export const CBOMReportSchema = z.object({
