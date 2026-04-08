@@ -130,35 +130,29 @@
 }
 
 /* ── Executive Report – Print styles ───────────────────────────────────────
-   When window.print() is called from the Reporting page, only the
-   .print:block element is visible; everything else is hidden.
-   This produces a clean 1-2 page PDF from the browser's print dialog.
+   When window.print() is called from the Reporting page:
+   - The fixed sidebar (<aside>) and top header (<header>) are hidden.
+   - <main>'s offsets are reset so the content fills the page.
+   - Tailwind's print:block / print:hidden utilities handle showing the
+     executive report div and hiding the screen-only UI.
 ───────────────────────────────────────────────────────────────────────────── */
 @media print {
-  /* Hide the whole shell except the print-only report */
-  body > * {
+  /* Hide the fixed sidebar and top header */
+  aside,
+  header {
     display: none !important;
   }
-  /* The Next.js <main> wrapping the page content */
-  body main {
-    display: block !important;
+  /* Remove the ml-64 mt-14 offsets applied by the layout */
+  main {
     margin: 0 !important;
     padding: 0 !important;
-  }
-  /* Show only the hidden print div */
-  .print\:block {
-    display: block !important;
-  }
-  /* Hide everything marked print:hidden */
-  .print\:hidden {
-    display: none !important;
   }
   /* Page setup */
   @page {
     size: A4;
     margin: 15mm;
   }
-  /* Ensure colours print correctly */
+  /* Ensure background colours and images print correctly */
   * {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
