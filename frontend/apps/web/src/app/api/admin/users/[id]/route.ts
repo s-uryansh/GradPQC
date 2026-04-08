@@ -8,7 +8,7 @@ type AllowedRole = (typeof ALLOWED_ROLES)[number];
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
@@ -38,15 +38,19 @@ export async function PATCH(
   }
 
   try {
-    // Prevent changing another admin's role
+    const { id } = await params;
+
     const [targetRows] = await pool.query(
       "SELECT id, role FROM user WHERE id = ?",
-      [params.id],
+      [id],
     );
+
     const target = (targetRows as { id: string; role: string }[])[0];
+
     if (!target) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
+
     if (target.role === "admin") {
       return NextResponse.json(
         { error: "Cannot change the role of an admin account" },
@@ -54,8 +58,9 @@ export async function PATCH(
       );
     }
 
-    await pool.query("UPDATE user SET role = ? WHERE id = ?", [role, params.id]);
-    return NextResponse.json({ message: "Role updated", id: params.id, role });
+    await pool.query("UPDATE user SET role = ? WHERE id = ?", [role, id]);
+
+    return NextResponse.json({ message: "Role updated", id, role });
   } catch (err) {
     console.error("[admin/users PATCH]", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
