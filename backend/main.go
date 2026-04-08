@@ -76,6 +76,10 @@ func loadPolicyConfig(path string) (*scoring.Weights, error) {
 
 func main() {
 	db.InitDB()
+	db.RunMigrations()
+
+	// Start background cron scheduler for emailing scheduled reports
+	api.StartCronScheduler()
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/scan", api.HandleScan)
@@ -83,6 +87,7 @@ func main() {
 	mux.HandleFunc("/api/discover", api.HandleDiscover)
 	mux.HandleFunc("/api/benchmark", api.HandleBenchmark)
 	mux.HandleFunc("/api/reports/schedule", api.HandleScheduleReport)
+	mux.HandleFunc("/api/reports/download", api.HandleDownloadReport)
 
 	port := "8080"
 	fmt.Printf("GradPQC Backend API is running on http://localhost:%s\n", port)

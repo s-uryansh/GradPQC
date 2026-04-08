@@ -128,3 +128,39 @@
     @apply font-sans;
   }
 }
+
+/* ── Executive Report – Print styles ───────────────────────────────────────
+   When window.print() is called from the Reporting page, only the
+   .print:block element is visible; everything else is hidden.
+   This produces a clean 1-2 page PDF from the browser's print dialog.
+───────────────────────────────────────────────────────────────────────────── */
+@media print {
+  /* Hide the whole shell except the print-only report */
+  body > * {
+    display: none !important;
+  }
+  /* The Next.js <main> wrapping the page content */
+  body main {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  /* Show only the hidden print div */
+  .print\:block {
+    display: block !important;
+  }
+  /* Hide everything marked print:hidden */
+  .print\:hidden {
+    display: none !important;
+  }
+  /* Page setup */
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+  /* Ensure colours print correctly */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
