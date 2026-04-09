@@ -3,6 +3,7 @@ import "../index.css";
 import Providers from "@/components/providers";
 import Sidebar from "@/components/sidebar";
 import DashboardHeader from "@/components/dashboard-header";
+import { UserProvider } from "@/components/user-context";
 import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
@@ -26,11 +27,13 @@ export default async function RootLayout({
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
   let email: string | undefined;
+  let role = "viewer";
 
   if (token) {
     const payload = decodeJwt(token);
     if (payload && payload.email) {
       email = payload.email;
+      role = payload.role || "viewer";
     }
   }
 
@@ -39,13 +42,13 @@ export default async function RootLayout({
       <body className="bg-gray-50 text-gray-900 antialiased">
         <Providers>
           {email ? (
-            <>
+            <UserProvider user={{ email, role }}>
               <Sidebar />
               <DashboardHeader email={email} />
               <main className="ml-64 mt-14 min-h-[calc(100vh-3.5rem)] p-6">
                 {children}
               </main>
-            </>
+            </UserProvider>
           ) : (
             <main className="min-h-screen">
               {children}

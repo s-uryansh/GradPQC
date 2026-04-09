@@ -77,6 +77,8 @@ func loadPolicyConfig(path string) (*scoring.Weights, error) {
 func main() {
 	db.InitDB()
 
+	api.StartScheduler()
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/scan", api.HandleScan)
 	mux.HandleFunc("/api/results", api.HandleResults)

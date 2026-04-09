@@ -14,6 +14,7 @@ import {
   Calculator,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUser } from "@/components/user-context";
 
 const navItems = [
   { href: "/",              label: "Home",             icon: Home },
@@ -29,6 +30,10 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { role } = useUser();
+  const visibleItems = role === "viewer"
+    ? navItems.filter(item => item.href !== "/reporting")
+    : navItems;
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-[#8B1A1A] flex flex-col z-40">
@@ -40,7 +45,7 @@ export default function Sidebar() {
       </div>
 
       <nav className="flex-1 py-4">
-        {navItems.map(({ href, label, icon: Icon }) => {
+        {visibleItems.map(({ href, label, icon: Icon }) => {
           const active = pathname === href;
           return (
             <Link

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import Loader from "@/components/loader";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import ScanTrigger from "@/components/scan-trigger";
+import { useUser } from "@/components/user-context";
 
 function getMockData(domain: string) {
   const hash = domain.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -31,6 +32,7 @@ const RISK_COLORS = ["#EF4444", "#F97316", "#F59E0B", "#10B981"];
 const IP_COLORS = ["#3B82F6", "#8B5CF6"];
 
 export default function HomePage() {
+  const { role } = useUser();
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [report, setReport] = useState<CBOMReport | null>(null);
@@ -82,7 +84,7 @@ export default function HomePage() {
 
   return (
     <div className="space-y-6">
-    <ScanTrigger userRole="admin" />
+    <ScanTrigger userRole={role} />
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
         {summaryCards.map(({ label, value, icon: Icon, color, bg }) => (
           <Card key={label} className="shadow-sm bg-white border-gray-200">
