@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner";
 import { loadCBOM, type CBOMReport } from "@/lib/data";
 import { summarise, enterpriseCyberScore, cyberTier } from "@/lib/cbom";
+import { useRole } from "@/lib/useRole";
 
 type ReportTab = "executive" | "scheduled" | "ondemand";
 
@@ -45,12 +46,16 @@ export default function ReportingPage() {
     cyberRating: true,
   });
   const [report, setReport] = useState<CBOMReport | null>(null);
+  const { role } = useRole();
+  const isViewer = role === "viewer";
 
   // On-demand state
   const [selectedType, setSelectedType] = useState(ONDEMAND_TYPES[3]);
   const [selectedFormat, setSelectedFormat] = useState("JSON");
   const [onDemandEmail, setOnDemandEmail] = useState("");
   const [onDemandLoading, setOnDemandLoading] = useState(false);
+  // printType tracks what the print section should render — set before window.print()
+  const [printType, setPrintType] = useState<string>("Executive Reporting");
 
   useEffect(() => {
     loadCBOM()
@@ -87,14 +92,22 @@ export default function ReportingPage() {
     }
   }
 
+  function safeFilename(reportType: string, ext: string) {
+    return reportType.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "") + "_report." + ext;
+  }
+
   async function handleGenerateReport() {
     setOnDemandLoading(true);
     const format = selectedFormat.toLowerCase();
 
-    // PDF uses the browser's native print (shows the print-only executive view)
+    // PDF: set print type to current on-demand selection, then trigger print
     if (format === "pdf") {
-      window.print();
-      setOnDemandLoading(false);
+      setPrintType(selectedType);
+      // allow React to re-render the print section before printing
+      setTimeout(() => {
+        window.print();
+        setOnDemandLoading(false);
+      }, 100);
       return;
     }
 
@@ -123,7 +136,9 @@ export default function ReportingPage() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = format === "excel" ? "cbom_report.xlsx" : "cbom_report.json";
+        a.download = format === "excel"
+          ? safeFilename(selectedType, "xlsx")
+          : safeFilename(selectedType, "json");
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -146,23 +161,27 @@ export default function ReportingPage() {
       ? Math.round(report.assets.reduce((sum, a) => sum + a.qmrs, 0) / report.assets.length)
       : 0;
 
-  const tabs = [
+  const allTabs = [
     { id: "executive" as const, label: "Executives Reporting", icon: Users,    desc: "High-level summary for leadership" },
     { id: "scheduled" as const, label: "Scheduled Reporting",  icon: Calendar, desc: "Automated reports on a schedule"   },
     { id: "ondemand"  as const, label: "On-Demand Reporting",  icon: Search,   desc: "Generate reports as needed"        },
   ];
+  // Viewers can only access the executive summary tab
+  const tabs = isViewer ? allTabs.slice(0, 1) : allTabs;
 
   return (
     <>
-      {/* ── PRINT-ONLY executive report (hidden on screen) ─────────────── */}
+      {/* ── PRINT-ONLY report (hidden on screen, dynamic based on printType) ── */}
       <div className="hidden print:block">
         <div className="max-w-4xl mx-auto p-10 bg-white text-gray-900">
-          {/* Header */}
+          {/* Header – shared across all report types */}
           <div className="flex items-start justify-between mb-8 pb-6 border-b-2 border-[#8B1A1A]">
             <div>
               <div className="text-3xl font-bold text-[#8B1A1A]">Punjab National Bank</div>
               <div className="text-lg text-gray-600 mt-1">
-                Quantum Cryptographic Posture – Executive Report
+                {printType === "Executive Reporting"
+                  ? "Quantum Cryptographic Posture – Executive Report"
+                  : `${printType} – On-Demand Report`}
               </div>
               <div className="text-sm text-gray-400 mt-1">
                 NIST IR 8547 | RBI Cyber Security Framework
@@ -179,7 +198,7 @@ export default function ReportingPage() {
             </div>
           </div>
 
-          {/* KPI strip */}
+          {/* KPI strip – all types */}
           <div className="grid grid-cols-4 gap-4 mb-8">
             {[
               { label: "Total Assets", value: s?.totalAssets ?? "—" },
@@ -194,63 +213,148 @@ export default function ReportingPage() {
             ))}
           </div>
 
-          {/* Two-column detail */}
-          <div className="grid grid-cols-2 gap-6 mb-8">
-            <div>
-              <h3 className="font-semibold text-gray-800 mb-3">Runway Status</h3>
-              <div className="space-y-2">
-                {[
-                  { label: "Red – Immediate Action Required", value: s?.redRunway ?? 0,   dot: "bg-red-500"     },
-                  { label: "Amber – Monitor & Plan",          value: s?.amberRunway ?? 0,  dot: "bg-amber-500"   },
-                  {
-                    label: "Green – On Track",
-                    value: (s?.totalAssets ?? 0) - (s?.redRunway ?? 0) - (s?.amberRunway ?? 0),
-                    dot: "bg-emerald-500",
-                  },
-                ].map(({ label, value, dot }) => (
-                  <div key={label} className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full flex-shrink-0 ${dot}`} />
-                    <span className="text-sm text-gray-700 flex-1">{label}</span>
-                    <span className="text-sm font-semibold">{value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-800 mb-3">RBI / CERT-In Compliance</h3>
-              <div className="space-y-2">
-                {[
-                  { label: "RBI Violations",             value: s?.rbiViolations  ?? 0, dot: "bg-red-500"    },
-                  { label: "PFS Broken",                  value: s?.pfsBroken     ?? 0, dot: "bg-orange-500" },
-                  { label: "Certificates Expiring ≤90d", value: s?.expiringCerts  ?? 0, dot: "bg-amber-500"  },
-                  { label: "High Risk Assets",            value: s?.highRiskAssets ?? 0, dot: "bg-red-400"   },
-                ].map(({ label, value, dot }) => (
-                  <div key={label} className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full flex-shrink-0 ${dot}`} />
-                    <span className="text-sm text-gray-700 flex-1">{label}</span>
-                    <span className="text-sm font-semibold">{value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Migration horizon */}
-          <div className="border border-gray-200 rounded-lg p-5 mb-8">
-            <h3 className="font-semibold text-gray-800 mb-3">PQC Migration Horizon</h3>
-            <div className="grid grid-cols-3 gap-4">
-              {[
-                { year: "2030",      title: "TLS 1.2 Deprecated", desc: "All RSA-based TLS 1.2 must migrate to ECDHE or PQC algorithms." },
-                { year: "2035",      title: "TLS 1.2 Disallowed",  desc: "TLS 1.2 fully disallowed per NIST IR 8547. TLS 1.3 minimum."   },
-                { year: "Post-2035", title: "PQC Mandatory",       desc: "ML-KEM-768 & ML-DSA-44 required for all public-facing endpoints." },
-              ].map(({ year, title, desc }) => (
-                <div key={year} className="bg-gray-50 rounded p-3">
-                  <div className="font-bold text-[#8B1A1A] text-xs mb-0.5">{year} – {title}</div>
-                  <div className="text-gray-600 text-xs">{desc}</div>
+          {/* Executive / Posture: runway + compliance columns */}
+          {(printType === "Executive Reporting" || printType === "Posture of PQC") && (
+            <div className="grid grid-cols-2 gap-6 mb-8">
+              <div>
+                <h3 className="font-semibold text-gray-800 mb-3">Runway Status</h3>
+                <div className="space-y-2">
+                  {[
+                    { label: "Red – Immediate Action Required", value: s?.redRunway ?? 0,   dot: "bg-red-500"   },
+                    { label: "Amber – Monitor & Plan",          value: s?.amberRunway ?? 0,  dot: "bg-amber-500" },
+                    { label: "Green – On Track",                value: (s?.totalAssets ?? 0) - (s?.redRunway ?? 0) - (s?.amberRunway ?? 0), dot: "bg-emerald-500" },
+                  ].map(({ label, value, dot }) => (
+                    <div key={label} className="flex items-center gap-3">
+                      <div className={`w-3 h-3 rounded-full flex-shrink-0 ${dot}`} />
+                      <span className="text-sm text-gray-700 flex-1">{label}</span>
+                      <span className="text-sm font-semibold">{value}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-800 mb-3">RBI / CERT-In Compliance</h3>
+                <div className="space-y-2">
+                  {[
+                    { label: "RBI Violations",             value: s?.rbiViolations  ?? 0, dot: "bg-red-500"    },
+                    { label: "PFS Broken",                  value: s?.pfsBroken     ?? 0, dot: "bg-orange-500" },
+                    { label: "Certificates Expiring ≤90d", value: s?.expiringCerts  ?? 0, dot: "bg-amber-500"  },
+                    { label: "High Risk Assets",            value: s?.highRiskAssets ?? 0, dot: "bg-red-400"   },
+                  ].map(({ label, value, dot }) => (
+                    <div key={label} className="flex items-center gap-3">
+                      <div className={`w-3 h-3 rounded-full flex-shrink-0 ${dot}`} />
+                      <span className="text-sm text-gray-700 flex-1">{label}</span>
+                      <span className="text-sm font-semibold">{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* CBOM / Inventory: asset table */}
+          {(printType === "CBOM" || printType === "Assets Inventory") && report && (
+            <div className="mb-8">
+              <h3 className="font-semibold text-gray-800 mb-3">{printType} – Asset Detail</h3>
+              <table className="w-full text-xs border-collapse">
+                <thead>
+                  <tr className="bg-[#1B3A6B] text-white">
+                    {["Domain", "TLS", "Key Exchange", "Cipher Suite", "QMRS", "Quantum Status", "RBI", "Runway"].map(h => (
+                      <th key={h} className="px-3 py-2 text-left font-semibold">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.assets.map((a, i) => (
+                    <tr key={a.domain} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"} style={{pageBreakInside: "avoid"}}>
+                      <td className="px-3 py-1.5 font-medium">{a.domain}</td>
+                      <td className="px-3 py-1.5">{a.tls_version}</td>
+                      <td className="px-3 py-1.5">{a.key_exchange}</td>
+                      <td className="px-3 py-1.5 text-[10px]">{a.cipher_suite}</td>
+                      <td className="px-3 py-1.5">{a.qmrs.toFixed(1)}</td>
+                      <td className="px-3 py-1.5">{a.quantum_status}</td>
+                      <td className="px-3 py-1.5">{a.rbi_compliance}</td>
+                      <td className="px-3 py-1.5">{a.runway_status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Assets Discovery */}
+          {printType === "Assets Discovery" && report && (
+            <div className="mb-8">
+              <h3 className="font-semibold text-gray-800 mb-3">Discovered Assets</h3>
+              <table className="w-full text-xs border-collapse">
+                <thead>
+                  <tr className="bg-[#1B3A6B] text-white">
+                    {["Domain", "Asset Type", "TLS Version", "Cert Expiry (Days)", "Crypto Agility"].map(h => (
+                      <th key={h} className="px-3 py-2 text-left font-semibold">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.assets.map((a, i) => (
+                    <tr key={a.domain} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"} style={{pageBreakInside: "avoid"}}>
+                      <td className="px-3 py-1.5 font-medium">{a.domain}</td>
+                      <td className="px-3 py-1.5">{a.asset_type}</td>
+                      <td className="px-3 py-1.5">{a.tls_version}</td>
+                      <td className="px-3 py-1.5">{a.cert_days_remaining}</td>
+                      <td className="px-3 py-1.5">{a.crypto_agility_rating}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Cyber Rating */}
+          {printType === "Cyber Rating (Tiers 1-4)" && (
+            <div className="mb-8">
+              <h3 className="font-semibold text-gray-800 mb-3">Cyber Rating Summary</h3>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="border border-gray-200 rounded-lg p-5">
+                  <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Enterprise Cyber Score</div>
+                  <div className="text-4xl font-bold text-[#8B1A1A]">{score}</div>
+                  <div className="text-lg font-semibold text-gray-700 mt-1">{tier}</div>
+                </div>
+                <div className="border border-gray-200 rounded-lg p-5">
+                  <div className="text-xs text-gray-500 uppercase tracking-wide mb-2">Tier Breakdown</div>
+                  {[
+                    { label: "PQC-Ready Assets",  value: s?.pqcReady ?? 0 },
+                    { label: "High Risk Assets",   value: s?.highRiskAssets ?? 0 },
+                    { label: "RBI Violations",     value: s?.rbiViolations ?? 0 },
+                    { label: "Expiring ≤90d",      value: s?.expiringCerts ?? 0 },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="flex justify-between text-sm py-0.5">
+                      <span className="text-gray-600">{label}</span>
+                      <span className="font-semibold">{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Migration horizon – shown for executive and posture */}
+          {(printType === "Executive Reporting" || printType === "Posture of PQC") && (
+            <div className="border border-gray-200 rounded-lg p-5 mb-8">
+              <h3 className="font-semibold text-gray-800 mb-3">PQC Migration Horizon</h3>
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { year: "2030",      title: "TLS 1.2 Deprecated", desc: "All RSA-based TLS 1.2 must migrate to ECDHE or PQC algorithms." },
+                  { year: "2035",      title: "TLS 1.2 Disallowed",  desc: "TLS 1.2 fully disallowed per NIST IR 8547. TLS 1.3 minimum."   },
+                  { year: "Post-2035", title: "PQC Mandatory",       desc: "ML-KEM-768 & ML-DSA-44 required for all public-facing endpoints." },
+                ].map(({ year, title, desc }) => (
+                  <div key={year} className="bg-gray-50 rounded p-3">
+                    <div className="font-bold text-[#8B1A1A] text-xs mb-0.5">{year} – {title}</div>
+                    <div className="text-gray-600 text-xs">{desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="text-xs text-gray-400 text-center pt-4 border-t border-gray-100">
             Confidential – For Board / CISO use only &nbsp;|&nbsp; GradPQC v1.0 &nbsp;|&nbsp;
@@ -346,7 +450,7 @@ export default function ReportingPage() {
               </div>
 
               <Button
-                onClick={() => window.print()}
+                onClick={() => { setPrintType("Executive Reporting"); setTimeout(() => window.print(), 100); }}
                 className="bg-amber-500 hover:bg-amber-600 text-white gap-2"
               >
                 <Download className="h-4 w-4" />

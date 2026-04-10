@@ -8,10 +8,14 @@ import {
 } from "@/lib/cbom";
 import { Card, CardContent } from "@/components/ui/card";
 import Loader from "@/components/loader";
+import { useRole } from "@/lib/useRole";
+import ViewerGate from "@/components/viewer-gate";
 
 export default function CyberRatingPage() {
   const [report, setReport] = useState<CBOMReport | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { role } = useRole();
+  const isViewer = role === "viewer";
 
   useEffect(() => {
     loadCBOM().then(setReport).catch(e => setError(e.message));
@@ -75,7 +79,7 @@ export default function CyberRatingPage() {
               </tr>
             </thead>
             <tbody>
-              {report.assets.map((asset, i) => {
+              {(isViewer ? report.assets.slice(0, 3) : report.assets).map((asset, i) => {
                 const s = assetCyberScore(asset);
                 const t = cyberTier(s * 10);
                 return (
@@ -101,6 +105,7 @@ export default function CyberRatingPage() {
                   </tr>
                 );
               })}
+              <ViewerGate hidden={isViewer ? Math.max(0, report.assets.length - 3) : 0} label="assets" />
             </tbody>
           </table>
         </CardContent>

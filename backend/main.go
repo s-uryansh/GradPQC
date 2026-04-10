@@ -88,6 +88,7 @@ func main() {
 	mux.HandleFunc("/api/benchmark", api.HandleBenchmark)
 	mux.HandleFunc("/api/reports/schedule", api.HandleScheduleReport)
 	mux.HandleFunc("/api/reports/download", api.HandleDownloadReport)
+	mux.HandleFunc("/api/reports/test-email", api.HandleTestEmail)
 
 	port := "8080"
 	fmt.Printf("GradPQC Backend API is running on http://localhost:%s\n", port)

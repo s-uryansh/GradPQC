@@ -7,6 +7,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import Loader from "@/components/loader";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { CheckCircle, XCircle } from "lucide-react";
+import { useRole } from "@/lib/useRole";
+import ViewerGate from "@/components/viewer-gate";
 
 const gradeColor: Record<PQCGrade, string> = {
   Elite:    "bg-emerald-100 text-emerald-700",
@@ -19,6 +21,8 @@ const PIE_COLORS = ["#10B981", "#EF4444", "#F59E0B"];
 export default function PosturePage() {
   const [report, setReport] = useState<CBOMReport | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { role } = useRole();
+  const isViewer = role === "viewer";
 
   useEffect(() => {
     loadCBOM().then(setReport).catch(e => setError(e.message));
@@ -28,6 +32,7 @@ export default function PosturePage() {
   if (!report) return <Loader />;
 
   const graded = report.assets.map(a => ({ asset: a, grade: pqcGrade(a) }));
+  const displayedGraded = isViewer ? graded.slice(0, 3) : graded;
   const elite    = graded.filter(g => g.grade === "Elite").length;
   const critical = graded.filter(g => g.grade === "Critical").length;
   const standard = graded.filter(g => g.grade === "Standard").length;
@@ -172,7 +177,7 @@ export default function PosturePage() {
               </tr>
             </thead>
             <tbody>
-              {graded.map(({ asset, grade }, i) => (
+              {displayedGraded.map(({ asset, grade }, i) => (
                 <tr key={asset.domain} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                   <td className="px-4 py-3 font-medium text-gray-900">{asset.domain}</td>
                   <td className="px-4 py-3 text-gray-500 text-xs">Public</td>
@@ -229,6 +234,7 @@ export default function PosturePage() {
                   </td>
                 </tr>
               ))}
+              <ViewerGate hidden={graded.length - displayedGraded.length} label="assets" />
             </tbody>
           </table>
         </CardContent>

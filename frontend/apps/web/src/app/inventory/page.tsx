@@ -7,13 +7,17 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Loader from "@/components/loader";
 import { Search, ArrowUpDown, Filter, AlertTriangle } from "lucide-react";
+import { useRole } from "@/lib/useRole";
+import ViewerGate from "@/components/viewer-gate";
 
 type SortConfig = { key: keyof Asset; direction: "asc" | "desc" } | null;
 
 export default function InventoryPage() {
   const [report, setReport] = useState<CBOMReport | null>(null);
   const [error, setError] = useState<string | null>(null);
-  
+  const { role } = useRole();
+  const isViewer = role === "viewer";
+
   const [searchInput, setSearchInput] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -147,7 +151,7 @@ export default function InventoryPage() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {filteredAssets.length > 0 ? (
-                  filteredAssets.map((asset, i) => (
+                  (isViewer ? filteredAssets.slice(0, 3) : filteredAssets).map((asset, i) => (
                     <tr key={asset.domain} className={i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}>
                       <td className="px-4 py-3 font-medium text-gray-900">{asset.domain}</td>
                       <td className="px-4 py-3 text-gray-600 text-xs">{asset.asset_type}</td>
@@ -188,6 +192,7 @@ export default function InventoryPage() {
                     </td>
                   </tr>
                 )}
+                <ViewerGate hidden={isViewer ? Math.max(0, filteredAssets.length - 3) : 0} label="assets" />
               </tbody>
             </table>
           </div>

@@ -7,10 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import Loader from "@/components/loader";
-import { Search, Globe, Play, Loader2, CheckCircle2, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Globe, Play, Loader2, CheckCircle2, ChevronDown, ChevronUp, Lock } from "lucide-react";
 import { toast } from "sonner";
+import { useRole } from "@/lib/useRole";
+import ViewerGate from "@/components/viewer-gate";
 
 export default function DiscoveryPage() {
+  const { role } = useRole();
+  const isViewer = role === "viewer";
   const [rootDomain, setRootDomain] = useState("");
   const [discovered, setDiscovered] = useState<string[]>([]);
   const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
@@ -74,25 +78,32 @@ export default function DiscoveryPage() {
 
       <Card className="border-gray-200">
         <CardContent className="p-6">
-          <form onSubmit={handleDiscover} className="flex items-end gap-4">
-            <div className="flex-1 space-y-1.5">
-              <label className="text-xs font-semibold text-gray-700 uppercase">Root Domain</label>
-              <div className="relative">
-                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input 
-                  placeholder="e.g., pnb.bank.in" 
-                  value={rootDomain}
-                  onChange={(e) => setRootDomain(e.target.value)}
-                  className="pl-9 h-10 border-gray-300 focus:border-[#8B1A1A]"
-                  disabled={isDiscovering || isScanning}
-                />
-              </div>
+          {isViewer ? (
+            <div className="flex items-center gap-2 text-sm text-gray-500 py-2">
+              <Lock className="w-4 h-4 text-amber-500" />
+              Asset discovery is restricted to Analyst and Admin roles.
             </div>
-            <Button type="submit" disabled={isDiscovering || isScanning || !rootDomain} className="h-10 bg-[#8B1A1A] hover:bg-[#6B1414] text-white px-8">
-              {isDiscovering ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Search className="h-4 w-4 mr-2" />}
-              {isDiscovering ? "Discovering..." : "Discover Subdomains"}
-            </Button>
-          </form>
+          ) : (
+            <form onSubmit={handleDiscover} className="flex items-end gap-4">
+              <div className="flex-1 space-y-1.5">
+                <label className="text-xs font-semibold text-gray-700 uppercase">Root Domain</label>
+                <div className="relative">
+                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="e.g., pnb.bank.in"
+                    value={rootDomain}
+                    onChange={(e) => setRootDomain(e.target.value)}
+                    className="pl-9 h-10 border-gray-300 focus:border-[#8B1A1A]"
+                    disabled={isDiscovering || isScanning}
+                  />
+                </div>
+              </div>
+              <Button type="submit" disabled={isDiscovering || isScanning || !rootDomain} className="h-10 bg-[#8B1A1A] hover:bg-[#6B1414] text-white px-8">
+                {isDiscovering ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Search className="h-4 w-4 mr-2" />}
+                {isDiscovering ? "Discovering..." : "Discover Subdomains"}
+              </Button>
+            </form>
+          )}
         </CardContent>
       </Card>
 
@@ -141,7 +152,7 @@ export default function DiscoveryPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {discovered.map((domain, idx) => (
+                    {(isViewer ? discovered.slice(0, 3) : discovered).map((domain, idx) => (
                       <tr key={domain} className="hover:bg-gray-50/80 transition-colors">
                         <td className="px-6 py-3">
                           <Checkbox 
@@ -165,6 +176,7 @@ export default function DiscoveryPage() {
                         </td>
                       </tr>
                     ))}
+                    <ViewerGate hidden={isViewer ? Math.max(0, discovered.length - 3) : 0} label="subdomains" />
                   </tbody>
                 </table>
               </div>

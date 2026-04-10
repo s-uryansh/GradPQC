@@ -9,12 +9,16 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend
 } from "recharts";
+import { useRole } from "@/lib/useRole";
+import ViewerGate from "@/components/viewer-gate";
 
 const COLORS = ["#8B1A1A", "#F59E0B", "#10B981", "#3B82F6", "#8B5CF6"];
 
 export default function CBOMPage() {
   const [report, setReport] = useState<CBOMReport | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { role } = useRole();
+  const isViewer = role === "viewer";
 
   useEffect(() => {
     loadCBOM().then(setReport).catch(e => setError(e.message));
@@ -141,7 +145,7 @@ export default function CBOMPage() {
                 </tr>
               </thead>
               <tbody>
-                {report.assets.map((asset, i) => {
+                {(isViewer ? report.assets.slice(0, 3) : report.assets).map((asset, i) => {
                   const pfs = pfsBadge(asset.pfs_advertised, asset.pfs_actual);
                   return (
                     <tr key={asset.domain} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
@@ -184,6 +188,7 @@ export default function CBOMPage() {
                     </tr>
                   );
                 })}
+                <ViewerGate hidden={isViewer ? report.assets.length - 3 : 0} label="assets" />
               </tbody>
             </table>
           </div>

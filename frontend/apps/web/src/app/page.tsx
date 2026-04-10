@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { loadCBOM, type CBOMReport } from "@/lib/data";
 import { summarise } from "@/lib/cbom";
 import {
-  Globe, Server, AlertTriangle, Clock, Search, Plus, Play, Activity as ActivityIcon, MapPin, CheckCircle2, AlertCircle, Shield
+  Globe, Server, AlertTriangle, Clock, Search, Plus, Play, Activity as ActivityIcon, MapPin, CheckCircle2, AlertCircle, Shield, Lock
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import Loader from "@/components/loader";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import ScanTrigger from "@/components/scan-trigger";
+import { useRole } from "@/lib/useRole";
 
 function getMockData(domain: string) {
   const hash = domain.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -35,6 +36,9 @@ export default function HomePage() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [report, setReport] = useState<CBOMReport | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { role } = useRole();
+  const isViewer = role === "viewer";
+
   useEffect(() => {
     loadCBOM().then(setReport).catch(e => setError(e.message));
     const handler = setTimeout(() => setDebouncedSearch(searchTerm), 2000);
@@ -47,9 +51,11 @@ export default function HomePage() {
     </div>
   );
   if (!report) return <Loader />;
-  const filteredAssets = report.assets.filter(asset => 
+  // Viewers see only the first 3 assets; analysts/admins see all
+  const allFiltered = report.assets.filter(asset =>
     asset.domain.toLowerCase().includes(debouncedSearch.toLowerCase())
   );
+  const filteredAssets = isViewer ? allFiltered.slice(0, 3) : allFiltered;
   const s = summarise(report);
   
   const riskData = [
@@ -82,7 +88,7 @@ export default function HomePage() {
 
   return (
     <div className="space-y-6">
-    <ScanTrigger userRole="admin" />
+    <ScanTrigger userRole={role} />
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
         {summaryCards.map(({ label, value, icon: Icon, color, bg }) => (
           <Card key={label} className="shadow-sm bg-white border-gray-200">
@@ -225,18 +231,34 @@ export default function HomePage() {
                       <td className="px-4 py-3 text-gray-600">{asset.asset_type}</td>
                       <td className="px-4 py-3 text-gray-600">{mock.owner}</td>
                       <td className="px-4 py-3">
-                        <span className={`px-2 py-0.5 rounded font-semibold ${riskColor}`}>{riskLevel}</span>
+                        {isViewer ? (
+                          <span className="text-gray-400 flex items-center gap-1"><Lock className="w-3 h-3" /> Restricted</span>
+                        ) : (
+                          <span className={`px-2 py-0.5 rounded font-semibold ${riskColor}`}>{riskLevel}</span>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         <span className={isExpiring ? "text-amber-600 font-medium flex items-center gap-1" : "text-emerald-600 font-medium flex items-center gap-1"}>
                           {isExpiring ? <><AlertCircle className="w-3.5 h-3.5"/> Expiring</> : <><CheckCircle2 className="w-3.5 h-3.5"/> Valid</>}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-gray-600">{asset.key_size}-bit</td>
+                      <td className="px-4 py-3 text-gray-600">
+                        {isViewer ? <span className="text-gray-400 flex items-center gap-1"><Lock className="w-3 h-3" /> —</span> : `${asset.key_size}-bit`}
+                      </td>
                       <td className="px-4 py-3 text-gray-500 text-[10px] whitespace-nowrap">2 hrs ago</td>
                     </tr>
                   );
                 })}
+                {isViewer && report.assets.length > 3 && (
+                  <tr>
+                    <td colSpan={10} className="px-4 py-4 text-center">
+                      <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+                        <Lock className="w-4 h-4 text-amber-500" />
+                        <span>{report.assets.length - 3} more assets hidden. Contact your admin for Analyst access.</span>
+                      </div>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
