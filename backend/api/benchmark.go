@@ -42,7 +42,11 @@ var (
 )
 
 var competitorList = []struct{ name, domain string }{
+<<<<<<< HEAD
 	{"PNB", "pnbindia.in"},
+=======
+	{"PNB", "pnb.bank.in"},
+>>>>>>> 82fac72 (Middleware and frontend bugs fixed + code reviews)
 	{"SBI", "sbi.co.in"},
 	{"HDFC Bank", "hdfcbank.com"},
 	{"ICICI Bank", "icicibank.com"},
