@@ -26,11 +26,13 @@ export default async function RootLayout({
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
   let email: string | undefined;
+  let role: string = "viewer";
 
   if (token) {
     const payload = decodeJwt(token);
-    if (payload && payload.email) {
-      email = payload.email;
+    if (payload) {
+      if (payload.email) email = payload.email;
+      if (payload.role) role = payload.role;
     }
   }
 
@@ -40,7 +42,7 @@ export default async function RootLayout({
         <Providers>
           {email ? (
             <>
-              <Sidebar />
+              <Sidebar role={role} />
               <DashboardHeader email={email} />
               <main className="ml-64 mt-14 min-h-[calc(100vh-3.5rem)] p-6">
                 {children}

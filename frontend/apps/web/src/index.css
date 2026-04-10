@@ -128,3 +128,33 @@
     @apply font-sans;
   }
 }
+
+/* ── Executive Report – Print styles ───────────────────────────────────────
+   When window.print() is called from the Reporting page:
+   - The fixed sidebar (<aside>) and top header (<header>) are hidden.
+   - <main>'s offsets are reset so the content fills the page.
+   - Tailwind's print:block / print:hidden utilities handle showing the
+     executive report div and hiding the screen-only UI.
+───────────────────────────────────────────────────────────────────────────── */
+@media print {
+  /* Hide the fixed sidebar and top header */
+  aside,
+  header {
+    display: none !important;
+  }
+  /* Remove the ml-64 mt-14 offsets applied by the layout */
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  /* Page setup */
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+  /* Ensure background colours and images print correctly */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

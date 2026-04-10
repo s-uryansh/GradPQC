@@ -12,23 +12,27 @@ import {
   BarChart3,
   Trophy,
   Calculator,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const navItems = [
-  { href: "/",              label: "Home",             icon: Home },
-  { href: "/inventory",     label: "Asset Inventory",  icon: Database },
-  { href: "/discovery",     label: "Asset Discovery",  icon: Search },
-  { href: "/cbom",          label: "CBOM",             icon: FileText },
-  { href: "/posture",       label: "Posture of PQC",   icon: Shield },
-  { href: "/cyber-rating",  label: "Cyber Rating",     icon: Star },
-  { href: "/competitor",    label: "Benchmarking",     icon: Trophy },
-  { href: "/roi",           label: "Migration ROI",    icon: Calculator },
-  { href: "/reporting",     label: "Reporting",        icon: BarChart3 },
+const baseNavItems = [
+  { href: "/",             label: "Home",            icon: Home },
+  { href: "/inventory",    label: "Asset Inventory", icon: Database },
+  { href: "/discovery",    label: "Asset Discovery", icon: Search },
+  { href: "/cbom",         label: "CBOM",            icon: FileText },
+  { href: "/posture",      label: "Posture of PQC",  icon: Shield },
+  { href: "/cyber-rating", label: "Cyber Rating",    icon: Star },
+  { href: "/competitor",   label: "Benchmarking",    icon: Trophy },
+  { href: "/roi",          label: "Migration ROI",   icon: Calculator },
+  { href: "/reporting",    label: "Reporting",       icon: BarChart3 },
 ];
 
-export default function Sidebar() {
+const adminNavItem = { href: "/admin", label: "Admin Panel", icon: Users };
+
+export default function Sidebar({ role = "viewer" }: { role?: string }) {
   const pathname = usePathname();
+  const navItems = role === "admin" ? [...baseNavItems, adminNavItem] : baseNavItems;
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-[#8B1A1A] flex flex-col z-40">
@@ -39,7 +43,7 @@ export default function Sidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 py-4">
+      <nav className="flex-1 py-4 overflow-y-auto">
         {navItems.map(({ href, label, icon: Icon }) => {
           const active = pathname === href;
           return (
@@ -61,6 +65,9 @@ export default function Sidebar() {
       </nav>
 
       <div className="px-6 py-4 border-t border-white/20">
+        {role === "admin" && (
+          <p className="text-amber-300 text-xs font-semibold mb-1">ADMIN</p>
+        )}
         <p className="text-white/40 text-xs">PSB Hackathon 2026</p>
         <p className="text-white/40 text-xs">PNB Cybersecurity</p>
       </div>
