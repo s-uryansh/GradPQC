@@ -4,4 +4,5 @@ output/cbom_report.xlsx
 backend_backup
 .air.toml
 backend/tmp/
-
+.env
+.air.toml
