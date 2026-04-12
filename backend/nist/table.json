@@ -1,0 +1,76 @@
+{
+  "algorithms": {
+    "RSA": {
+      "security_level_bits": 112,
+      "deprecated_after": "2030-01-01",
+      "disallowed_after": "2035-01-01",
+      "nist_ref": "NIST IR 8547 ipd (Nov 2024), Table 2",
+      "framing": "Deprecated 2030, disallowed 2035 per migration planning horizon",
+      "replacement": "ML-KEM-768 (FIPS 203) for key exchange, ML-DSA-65 (FIPS 204) for signatures"
+    },
+    "ECDHE-RSA": {
+      "security_level_bits": 112,
+      "deprecated_after": "2030-01-01",
+      "disallowed_after": "2035-01-01",
+      "nist_ref": "NIST IR 8547 ipd (Nov 2024), Table 4",
+      "framing": "Deprecated 2030, disallowed 2035 per migration planning horizon",
+      "replacement": "ML-KEM-768 (FIPS 203)"
+    },
+    "ECDHE-ECDSA": {
+      "security_level_bits": 112,
+      "deprecated_after": "2030-01-01",
+      "disallowed_after": "2035-01-01",
+      "nist_ref": "NIST IR 8547 ipd (Nov 2024), Table 2 and Table 4",
+      "framing": "Deprecated 2030, disallowed 2035 per migration planning horizon",
+      "replacement": "ML-KEM-768 (FIPS 203) for key exchange, ML-DSA-65 (FIPS 204) for signatures"
+    },
+    "DHE-RSA": {
+      "security_level_bits": 112,
+      "deprecated_after": "2030-01-01",
+      "disallowed_after": "2035-01-01",
+      "nist_ref": "NIST IR 8547 ipd (Nov 2024), Table 4",
+      "framing": "Deprecated 2030, disallowed 2035 per migration planning horizon",
+      "replacement": "ML-KEM-768 (FIPS 203)"
+    },
+    "X25519 (TLS 1.3)": {
+      "security_level_bits": 128,
+      "deprecated_after": "",
+      "disallowed_after": "2035-01-01",
+      "nist_ref": "NIST IR 8547 ipd (Nov 2024), Table 4",
+      "framing": "Not deprecated at 2030 - 128-bit security. Disallowed 2035.",
+      "replacement": "ML-KEM-768 (FIPS 203) or X25519+ML-KEM hybrid"
+    },
+    "AES-256-GCM": {
+      "security_level_bits": 256,
+      "deprecated_after": "",
+      "disallowed_after": "",
+      "nist_ref": "NIST IR 8547 ipd (Nov 2024), Table 6",
+      "framing": "Quantum-resistant at current key size. No migration required.",
+      "replacement": ""
+    },
+    "ML-KEM-768": {
+      "security_level_bits": 192,
+      "deprecated_after": "",
+      "disallowed_after": "",
+      "nist_ref": "FIPS 203 (2024), NIST IR 8547 ipd Table 5",
+      "framing": "PQC Ready. No migration required.",
+      "replacement": ""
+    },
+    "ML-DSA-65": {
+      "security_level_bits": 192,
+      "deprecated_after": "",
+      "disallowed_after": "",
+      "nist_ref": "FIPS 204 (2024), NIST IR 8547 ipd Table 3",
+      "framing": "PQC Ready. No migration required.",
+      "replacement": ""
+    },
+    "SLH-DSA": {
+      "security_level_bits": 192,
+      "deprecated_after": "",
+      "disallowed_after": "",
+      "nist_ref": "FIPS 205 (2024), NIST IR 8547 ipd Table 3",
+      "framing": "PQC Ready. No migration required.",
+      "replacement": ""
+    }
+  }
+}

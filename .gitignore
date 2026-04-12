@@ -1,0 +1,8 @@
+# Backend
+output/cbom_report.json
+output/cbom_report.xlsx
+backend_backup
+.air.toml
+backend/tmp/
+.env
+.air.toml
