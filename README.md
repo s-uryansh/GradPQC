@@ -172,18 +172,6 @@ Runway = Deprecation Date - Today - MCS Lead Time (days)
 **Monte Carlo Engine**
 Calculates `P(Breach 2030)` using log-normal distributions of physical qubit growth rates mapped against Shor's Algorithm requirements (e.g., 4096 logical qubits for RSA-2048).
 
------
-
-## Team
-
-| Name | Role | Contact |
-|------|------|---------|
-| Mrs. Sweta Mishra | Mentor | sweta.mishra@snu.edu.in |
-| Suryansh Rohil | Team Lead and Core Developer | sr738@snu.edu.in |
-| Anish Gupta | Frontend Developer | ag801@snu.edu.in |
-| Prakhar Sethi | QA Tester and Documentation Lead | ps385@snu.edu.in |
-
-**Institution:** Shiv Nadar University
 
 -----
 
